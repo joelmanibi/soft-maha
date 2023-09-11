@@ -13,7 +13,7 @@ module.exports = function(app) {
   app.post("/api/v1/create-company",[authJwt.verifySudoToken], controller.CreateCompany);
   app.post("/api/v1/add-admin-company",[authJwt.verifySudoToken], controller.AddAdminCompany);
   app.post("/api/v1/update-company-info",[authJwt.verifySudoToken],controller.updateCompInfo);
-  app.get("/api/v1/get-all-company",[authJwt.verifySudoToken],controller.getAllCompany);
+  app.get("/api/v1/get-all-company",controller.getAllCompany);
   app.post("/api/v1/update-company-admin",[authJwt.verifySudoToken],controller.UpdateAdminCompany);
 
 };

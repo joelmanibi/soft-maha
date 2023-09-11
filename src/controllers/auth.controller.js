@@ -13,8 +13,8 @@ exports.signup = (req, res) => {
     user_phone: req.body.user_phone,
     user_role: req.body.user_role,
     user_isActive: req.body.user_isActive,
-    user_password: bcrypt.hashSync(req.body.user_password, 8)
-  })
+    user_password: bcrypt.hashSync("0000", 8)
+  }) 
     .then(user => {
       var token = jwt.sign({ user_id: user.user_id }, config.secret, {
         expiresIn: 60480000 // 23 mois
@@ -35,7 +35,8 @@ exports.signup = (req, res) => {
         user_phone: user.user_phone,
         user_role: user.user_role,
         user_token: token,
-        statutcode: 1
+        statutcode: 1,
+        message:"Vous venez d'\enregistrer l'\ utilisateur "+req.body.user_matricule
       });
     })
     .catch(err => {
@@ -53,7 +54,23 @@ exports.active = (req,res ) => {
     }
   ).then(user => {
     res.status(200).json({
-      active_message: "effectué avec succes",
+      message: "effectué avec succes",
+      statutcode: 1
+    });
+  }).catch(err => {
+    res.status(500).send({ message: err.message });
+  });
+  
+}
+
+exports.DestroyUser = (req,res ) => {
+  User.destroy(
+    {
+      where: { user_id: req.body.user_id },
+    }
+  ).then(user => {
+    res.status(200).json({
+      message: "supprimé avec succes",
       statutcode: 1
     });
   }).catch(err => {
@@ -135,8 +152,7 @@ exports.signin = (req, res) => {
   User.findOne({
     where: {
       user_matricule: req.body.user_matricule,
-      user_isActive: 1,
-
+      user_isActive: 1
     }
   }).then(user => {
       if (!user) {

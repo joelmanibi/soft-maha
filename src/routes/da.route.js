@@ -21,4 +21,6 @@ module.exports = function(app) {
   app.post("/api/v1/valn2-da",[authJwt.verifyToken], controller.ValidationN2);
   app.get("/api/v1/verify-da/:code", controller.VerifyDA);
   app.post("/api/v1/retrait-da",[authJwt.verifyToken], controller.ConfirmationRetrait);
+  app.get("/api/v1/get-all-da", controller.getallDa);
+
 };

@@ -17,5 +17,9 @@ module.exports = function(app) {
     "/api/v1/get-all-user",
     controller.getAllUser
   );
+  //
+  app.get("/api/v1/get-admin-role",controller.getAdminRole);
+  app.get("/api/v1/get-other-role",controller.getOtherUserRole);
+  app.get("/api/v1/get-ot-type",controller.getOt_type);
   
 };

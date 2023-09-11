@@ -1,5 +1,5 @@
 module.exports = (sequelize, Sequelize) => {
-    const CasierOrEmpl = sequelize.define("casierorempl_type", {
+    const CasierOrEmplType = sequelize.define("casierorempl_type", {
       casierorempl_type_id: {
         type: Sequelize.INTEGER,
         autoIncrement: true,
@@ -18,5 +18,5 @@ module.exports = (sequelize, Sequelize) => {
           // If don't want updatedAt
           updatedAt: false,
       });
-      return CasierOrEmpl;
+      return CasierOrEmplType;
 };

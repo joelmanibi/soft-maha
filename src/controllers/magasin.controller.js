@@ -3,9 +3,14 @@ const User = db.user;
 const Magasin = db.magasin;
 const Magasinier = db.magasinier;
 const EtagerOrLocal = db.etagerorlocal;
+const EtagerOrLocalType = db.etagerorlocal_type;
+const CasierOrEmplType = db.casierorempl_type;
 const CasierOrEmpl = db.casierorempl;
 const Article = db.article;
+const OtChiefOp = db.ot_chiefop;
+const UserType = db.user_type;
 const Stock = db.stock;
+const Site = db.site;
 const Usine = db.usine;
 const Cu = db.cu;
 const Ate = db.ate;
@@ -26,8 +31,117 @@ exports.CreateMagasin = (req,res) => {
     });
 };
 
+exports.getAllEtagerOrLocalType = (req, res) => {
+  EtagerOrLocalType.findAll({
+    })
+      .then(etagetype => {
+        if (!etagetype){
+          return res.status(404).send({ message: "Aucun type trouvé" });
+        }
+        res.status(200).json({etagetype});
+      }).catch(err => {
+        res.status(500).send({ message: err.message });
+      });
+  };
+  exports.getAllCasierOrEmplType = (req, res) => {
+    CasierOrEmplType.findAll({
+      })
+        .then(casiertype => {
+          if (!casiertype){
+            return res.status(404).send({ message: "Aucun type trouvé" });
+          }
+          res.status(200).json({casiertype});
+        }).catch(err => {
+          res.status(500).send({ message: err.message });
+        });
+    };
+
+  exports.getAllEtager = (req, res) => {
+    EtagerOrLocal.findAll({
+      include:[
+        {
+          model: EtagerOrLocalType
+        },
+        {
+          model: Magasin
+        }
+      ]
+      })
+        .then(etage => {
+          if (!etage){
+            return res.status(404).send({ message: "Aucun type trouvé" });
+          }
+          res.status(200).json({etage});
+        }).catch(err => {
+          res.status(500).send({ message: err.message });
+        });
+    };
+
+  exports.getAllCasier = (req, res) => {
+    CasierOrEmpl.findAll({
+      include:[
+        {
+          model: EtagerOrLocal,
+          include:[
+            {
+              model:Magasin
+            }
+          ]
+        },
+        {
+          model: CasierOrEmplType
+        }
+      ]
+      })
+        .then(casier => {
+          if (!casier){
+            return res.status(404).send({ message: "Aucun type trouvé" });
+          }
+          res.status(200).json({casier});
+        }).catch(err => {
+          res.status(500).send({ message: err.message });
+        });
+    };
+
+    exports.getAllMagasinier = (req, res) => {
+      Magasinier.findAll({
+        //// verfier pourquoi user n'est pas associer a magasinier
+        include:[
+          {
+            model:User,
+            include:[
+              {
+                model:UserType
+              }
+            ]
+          },
+          {
+            model:Magasin,
+            include:[
+              {
+                model:Site
+              }
+            ]
+          }
+        ]
+      }).then(magasinier => {
+          if (!magasinier){
+            return res.status(404).send({ message: "Aucun magasinier trouvé" });
+          }
+          res.status(200).json({magasinier});
+        }).catch(err => {
+          res.status(500).send({ message: err.message });
+        });
+    };
+
 exports.getAllMagasin = (req, res) => {
-    Magasin.findAll()
+    Magasin.findAll({
+      include:[
+        {
+          model:Site
+        }
+      ]
+    })
       .then(magasin => {
         if (!magasin){
           return res.status(404).send({ message: "Aucun magasin trouvé" });
@@ -72,13 +186,14 @@ exports.getAllMagasin = (req, res) => {
   };
 
   exports.CreateMagasinier = (req,res) => {
+    //CreateMagasinier
     User.create({
         user_matricule: req.body.user_matricule,
         user_firstname: req.body.user_firstname,
         user_lastname: req.body.user_lastname,
         user_phone: req.body.user_phone,
         user_role: 9,
-        user_isActive: 1,
+        user_isActive:req.body.user_isActive,
         user_password: bcrypt.hashSync("0000", 8)
       })
         .then(user => {
@@ -87,7 +202,7 @@ exports.getAllMagasin = (req, res) => {
             magasinMagasinId: req.body.magasinMagasinId
               },
             ).then(magasinier => {
-                  res.send({ message: "New Magasinier Was added to Site admin successfully!" });
+                  res.send({ message: "Vous venez d'\enregistrer le Magasinier "+req.body.user_matricule });
               })
               .catch(err => {
                 res.status(500).send({ message: err.message });
@@ -98,7 +213,7 @@ exports.getAllMagasin = (req, res) => {
         });
   };
 
-  exports.CreateMagasinier = (req,res) => {
+  exports.AddMagasinier = (req,res) => {
     Magasinier.create({
       userUserId: req.body.user_id,
       magasinMagasinId: req.body.magasinMagasinId
@@ -126,7 +241,7 @@ exports.getAllMagasin = (req, res) => {
         .catch(err => {
           res.status(500).send({ 
             message: err.message ,
-            statutcode: 1 });
+            statutcode: 0 });
         });
     };
 
@@ -137,7 +252,7 @@ exports.CreateEtOrLocal = (req,res) => {
         etagerorlocal_magasin_id: req.body.etagerorlocal_magasin_id
         },
         ).then(etagerorlocal => {
-            res.send({ message: "New Etager or Local Was added to Site admin successfully!" });
+            res.send({ message: req.body.etagerorlocal_name + "Ajouté avec succes" });
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
@@ -151,11 +266,40 @@ exports.CreateEmplOrCasier = (req,res) => {
         casierorempl_locate_id: req.body.casierorempl_locate_id
         },
         ).then(casierorempl => {
-            res.send({ message: "New Casier or Emplacement Was added to Site admin successfully!" });
+            res.send({ message: req.body.casierorempl_name + "Ajouté avec succes" });
         })
         .catch(err => {
             res.status(500).send({ message: err.message });
         });
+};
+
+exports.AddArticleToCasier = (req,res) => {
+  Stock.findOne({
+    where: {
+      casieroremplCasieroremplId : req.body.casierId
+    }
+  }).then(stock => {
+    if (stock) {
+      res.status(400).send({
+        message: "Casier ou Emplacement deja utilisé"
+      });
+      return;
+    }
+    Stock.create({
+      articleArticleId :req.body.article_id,
+      stock_quantity: req.body.stock_quantity,
+      stock_seuil: req.body.stock_seuil,
+      casieroremplCasieroremplId : req.body.casierId,
+      stock_locate_id:req.body.stock_locate_id 
+      },
+      ).then(stock => {
+          res.send({ message: "Stock Ajouter avec succes" });
+      })
+      .catch(err => {
+          res.status(500).send({ message: err.message });
+      });
+  });
+  
 };
 
 exports.CreateArticle = (req,res) => {
@@ -183,6 +327,35 @@ exports.CreateArticle = (req,res) => {
         });
 };
 
+exports.getAllStock = (req, res) => {
+  Stock.findAll({
+    include:[
+      {
+        model:Magasin
+      },
+      {
+        model:Article
+      },
+      {
+        model:CasierOrEmpl,
+        include:[
+          {
+            model: CasierOrEmplType
+          }
+        ]
+      }
+    ]
+  })
+    .then(stock => {
+      if (!stock){
+        return res.status(404).send({ message: "Aucun stock trouvé" });
+      }
+      res.status(200).json({stock});
+    }).catch(err => {
+      res.status(500).send({ message: err.message });
+    });
+};
+
 exports.getAllArticle = (req, res) => {
   Article.findAll()
     .then(article => {
@@ -197,7 +370,7 @@ exports.getAllArticle = (req, res) => {
 exports.getAllArticleByMag = (req, res) => {
   Cq.findOne(
     {
-      where: { userUserId: 7},
+      where: { userUserId: req.user_id},
     }
   )
     .then(cq => {
@@ -257,17 +430,38 @@ exports.CreateUsine = (req,res) => {
     });
 };
 
-exports.CreateNewCU = (req,res) => {
-    User.create({
-        user_matricule: req.body.user_matricule,
-        user_firstname: req.body.user_firstname,
-        user_lastname: req.body.user_lastname,
-        user_phone: req.body.user_phone,
-        user_role: 4,
-        user_isActive: 1,
-        user_password: bcrypt.hashSync("0000", 8)
-      })
-        .then(user => {
+exports.GetUsine = (req,res) => {
+  Usine.findAll({
+    include : [
+      {
+          model:Magasin,
+          //as: "articleArticleId"
+      },
+      
+    ]
+  })
+    .then(usine => {
+      if (!usine){
+        return res.status(404).send({ message: "Aucune Usine trouvé" });
+      }
+      res.status(200).json({usine});
+    }).catch(err => {
+      res.status(500).send({ message: err.message });
+    });
+};
+
+
+exports.CreateNewOther = (req,res) => {
+  User.create({
+      user_matricule: req.body.user_matricule,
+      user_firstname: req.body.user_firstname,
+      user_lastname: req.body.user_lastname,
+      user_phone: req.body.user_phone,
+      user_role: req.body.user_role,
+      user_isActive: req.body.user_isActive,
+      user_password: bcrypt.hashSync("0000", 8)
+    }).then(user => {
+        if(req.body.user_role ==4){
           Cu.create(
             {
                 userUserId: user.user_id,
@@ -275,237 +469,97 @@ exports.CreateNewCU = (req,res) => {
             }
           );
           res.status(200).json({
-            message: "New Chef d'usine Was added successfully!",
+            message: "Vous venez d'\enregistrer le Chef d'\ usine "+req.body.user_matricule,
             statutcode: 1
           });
-        })
-        .catch(err => {
-          res.status(500).send({ message: err.message });
-        });
-};
+        }else if(req.body.user_role ==5){
+            Ate.create({
+              userUserId: user.user_id,
+              usineUsineId : req.body.usineUsineId
+            }
+            )
+            res.status(200).json({
+              message: "Vous venez d'\enregistrer l'\ ATE "+req.body.user_matricule,
+              statutcode: 1
+            });
 
-exports.AddCU = (req,res) => {
-    User.Update({
-        user_role: 4
-      },
-      {
-        where:{user_id:req.body.user_id}
-      }).then(user => {
-        Cu.Update({
-            userUserId: req.body.user_id
-          },
-          {
-            where :{usineUsineId : req.body.usineUsineId}
-          }
-          )
-          res.status(200).json({
-            message: "New Chef d'usine Was added successfully!",
-            statutcode: 1
-          });
-        })
-        .catch(err => {
-          res.status(500).send({ message: err.message });
-        });
-};
-
-exports.AddATE = (req,res) => {
-    User.Update({
-        user_role: 5
-      },
-      {
-        where:{user_id:req.body.user_id}
-      }).then(user => {
-        Ate.Update({
-            userUserId: req.body.user_id
-          },
-          {
-            where :{usineUsineId : req.body.usineUsineId}
-          }
-          )
-          res.status(200).json({
-            message: "New ATE Was added successfully!",
-            statutcode: 1
-          });
-        })
-        .catch(err => {
-          res.status(500).send({ message: err.message });
-        });
-};
-
-exports.CreateNewATE = (req,res) => {
-    User.create({
-        user_matricule: req.body.user_matricule,
-        user_firstname: req.body.user_firstname,
-        user_lastname: req.body.user_lastname,
-        user_phone: req.body.user_phone,
-        user_role: 5,
-        user_isActive: 1,
-        user_password: bcrypt.hashSync("0000", 8)
-      })
-        .then(user => {
-          Ate.create(
+        }else if(req.body.user_role ==6){
+          Cem.create(
             {
                 userUserId: user.user_id,
                 usineUsineId : req.body.usineUsineId
             }
           );
           res.status(200).json({
-            message: "New ATE Was added successfully!",
+            message: "Vous venez d'\enregistrer le Chef d'\equipe de maintenance "+req.body.user_matricule,
             statutcode: 1
           });
-        })
-        .catch(err => {
-          res.status(500).send({ message: err.message });
-        });
-};
-
-exports.AddCEM = (req,res) => {
-  User.Update({
-      user_role: 6
-    },
-    {
-      where:{user_id:req.body.user_id}
-    }).then(user => {
-      Cem.Update({
-          userUserId: req.body.user_id
-        },
-        {
-          where :{usineUsineId : req.body.usineUsineId}
-        }
-        )
-        res.status(200).json({
-          message: "New Cem Was added successfully!",
-          statutcode: 1
-        });
-      })
-      .catch(err => {
+        }else if(req.body.user_role ==7){
+          
+          
+        }else if(req.body.user_role ==8){
+          Cq.create(
+            {
+                userUserId: user.user_id,
+                usineUsineId : req.body.usineUsineId
+            }
+          );
+          res.status(200).json({
+            message: "Vous venez d'\enregistrer le Chef de quart "+req.body.user_matricule,
+            statutcode: 1
+          });
+        }}).catch(err => {
         res.status(500).send({ message: err.message });
       });
 };
-
-exports.CreateNewCEM = (req,res) => {
+exports.AddResponTravaux = (req,res) => {
   User.create({
-      user_matricule: req.body.user_matricule,
-      user_firstname: req.body.user_firstname,
-      user_lastname: req.body.user_lastname,
-      user_phone: req.body.user_phone,
-      user_role: 6,
-      user_isActive: 1,
-      user_password: bcrypt.hashSync("0000", 8)
-    })
-      .then(user => {
-        Cem.create(
-          {
-              userUserId: user.user_id,
-              usineUsineId : req.body.usineUsineId
-          }
-        );
-        res.status(200).json({
-          message: "New CEM Was added successfully!",
-          statutcode: 1
-        });
+    user_matricule: req.body.user_matricule,
+    user_firstname: req.body.user_firstname,
+    user_lastname: req.body.user_lastname,
+    user_phone: req.body.user_phone,
+    user_role: 7,
+    user_isActive: req.body.user_isActive,
+    user_password: bcrypt.hashSync("0000", 8)
+  }).then(user => {
+    OtChiefOp.create(
+      {
+          userUserId: user.user_id,
+          usineUsineId : req.body.usineUsineId,
+          otTypeOtTypeId :req.body.otTypeOtTypeId 
+      } 
+    );
+    res.status(200).json({
+      message: "Vous venez d'\enregistrer Responsable de Travaux "+req.body.user_matricule,
+      statutcode: 1
+    });
       })
       .catch(err => {
         res.status(500).send({ message: err.message });
       });
 };
 
-exports.AddCEE = (req,res) => {
-  User.Update({
-      user_role: 7
-    },
-    {
-      where:{user_id:req.body.user_id}
-    }).then(user => {
-      Cem.Update({
-          userUserId: req.body.user_id
-        },
-        {
-          where :{usineUsineId : req.body.usineUsineId}
-        }
-        )
-        res.status(200).json({
-          message: "New CEE Was added successfully!",
-          statutcode: 1
-        });
-      })
-      .catch(err => {
-        res.status(500).send({ message: err.message });
-      });
-};
-
-exports.CreateNewCEE = (req,res) => {
+exports.AddResponTravaux = (req,res) => {
   User.create({
-      user_matricule: req.body.user_matricule,
-      user_firstname: req.body.user_firstname,
-      user_lastname: req.body.user_lastname,
-      user_phone: req.body.user_phone,
-      user_role: 7,
-      user_isActive: 1,
-      user_password: bcrypt.hashSync("0000", 8)
-    })
-      .then(user => {
-        Cee.create(
-          {
-              userUserId: user.user_id,
-              usineUsineId : req.body.usineUsineId
-          }
-        );
-        res.status(200).json({
-          message: "New CEE Was added successfully!",
-          statutcode: 1
-        });
-      })
-      .catch(err => {
-        res.status(500).send({ message: err.message });
-      });
-};
-
-exports.AddCQ = (req,res) => {
-  User.Update({
-      user_role: 8
-    },
-    {
-      where:{user_id:req.body.user_id}
-    }).then(user => {
-      Cem.Update({
-          userUserId: req.body.user_id
-        },
-        {
-          where :{usineUsineId : req.body.usineUsineId}
-        }
-        )
-        res.status(200).json({
-          message: "New CQ Was added successfully!",
-          statutcode: 1
-        });
-      })
-      .catch(err => {
-        res.status(500).send({ message: err.message });
-      });
-};
-
-exports.CreateNewCQ = (req,res) => {
-  User.create({
-      user_matricule: req.body.user_matricule,
-      user_firstname: req.body.user_firstname,
-      user_lastname: req.body.user_lastname,
-      user_phone: req.body.user_phone,
-      user_role: 8,
-      user_isActive: 1,
-      user_password: bcrypt.hashSync("0000", 8)
-    })
-      .then(user => {
-        Cq.create(
-          {
-              userUserId: user.user_id,
-              usineUsineId : req.body.usineUsineId
-          }
-        );
-        res.status(200).json({
-          message: "New CQ Was added successfully!",
-          statutcode: 1
-        });
+    user_matricule: req.body.user_matricule,
+    user_firstname: req.body.user_firstname,
+    user_lastname: req.body.user_lastname,
+    user_phone: req.body.user_phone,
+    user_role: 7,
+    user_isActive: req.body.user_isActive,
+    user_password: bcrypt.hashSync("0000", 8)
+  }).then(user => {
+    OtChiefOp.create(
+      {
+          userUserId: user.user_id,
+          usineUsineId : req.body.usineUsineId,
+          otTypeOtTypeId :req.body.otTypeOtTypeId 
+      } 
+    );
+    res.status(200).json({
+      message: "Vous venez d'\enregistrer Responsable de Travaux "+req.body.user_matricule,
+      statutcode: 1
+    });
       })
       .catch(err => {
         res.status(500).send({ message: err.message });

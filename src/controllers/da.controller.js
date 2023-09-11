@@ -3,6 +3,7 @@ const { Op } = require("sequelize");
 const db = require("../models");
 const MyConfig = require("./fonction/codegeneratorfile")
 const Da = db.da;
+const Da_etat = db.da_etat;
 const Article = db.article;
 const User = db.user;
 const Stock = db.stock;
@@ -41,6 +42,43 @@ exports.CreateDa = (req,res) => {
     })
     .catch(err => {
       res.status(500).send({ message: err.message,statutcode: 0 });
+    });
+};
+
+exports.getallDa = (req, res) => {
+  Da.findAll({
+    
+    order: [
+      ['da_id', 'DESC']
+  ],
+    include : [
+      {
+          model:Article
+      },
+      {
+        model:Da_etat
+    },
+      {
+          model:User,
+          as: "valideurn1"
+      },
+      {
+        model:User,
+        as: "demandeur"
+    },
+      {
+          model:Magasin,
+          as: "magasin"
+      }
+    ]
+  }
+  ).then(da => {
+      if (!da){
+        return res.status(404).send({ message: "Aucun site trouvé" });
+      }
+      res.status(200).json({da});
+    }).catch(err => {
+      res.status(500).send({ message: err.message });
     });
 };
 

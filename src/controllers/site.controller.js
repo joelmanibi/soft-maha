@@ -1,6 +1,7 @@
 const db = require("../models");
 const User = db.user;
 const Site = db.site;
+const Company = db.company;
 const SiteAdmin = db.site_admin;
 
 
@@ -19,7 +20,7 @@ exports.CreateSite = (req,res) => {
 
 exports.getAllSite = (req, res) => {
   Site.findAll({
-    include: User
+    include: Company
   })
     .then(site => {
       if (!site){

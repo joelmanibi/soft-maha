@@ -18,11 +18,10 @@ module.exports = function(app) {
   );
   app.post(
     "/api/auth/active",
-    [
-      authJwt.verifySudoToken,
-    ],
+    
     controller.active
   );
+  app.post("/api/auth/delete",controller.DestroyUser)
   app.post("/api/auth/signin", controller.signin);
   app.post("/api/auth/signin-mag", controller.signinMagasinier);
   app.post("/api/auth/update-user-info",controller.updateUserInfo);

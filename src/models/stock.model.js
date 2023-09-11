@@ -8,6 +8,9 @@ module.exports = (sequelize, Sequelize) => {
       stock_quantity: {
         type: Sequelize.FLOAT
       },
+      stock_seuil: {
+        type: Sequelize.FLOAT
+      },
       stock_locate_id: {
         type: Sequelize.INTEGER
       },

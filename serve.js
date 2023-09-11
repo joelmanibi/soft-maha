@@ -6,6 +6,7 @@ var app = express();
 var corsOptions = {
     origin: "*"
   };
+
 app.use(cors(corsOptions));
 const bodyParser = require('body-parser');
 //parse request date type application/json
@@ -28,7 +29,10 @@ require('./src/routes/company.route')(app);
 require('./src/routes/site.route')(app);
 require('./src/routes/magasin.route')(app);
 require('./src/routes/da.route')(app);
+require('./src/routes/di.route')(app);
 require('./src/routes/user.route')(app);
+require('./src/routes/machine.route')(app);
+
 
 // set port
 const PORT = process.env.PORT || 8080;

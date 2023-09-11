@@ -10,26 +10,28 @@ module.exports = function(app) {
     next();
   });
   
-  app.post("/api/v1/create-mag",[authJwt.verifySudoToken], controller.CreateMagasin);
-  app.post("/api/v1/add-magasinier",[authJwt.verifySudoToken], controller.CreateMagasinier);
-  app.get("/api/v1/get-all-mag",[authJwt.verifyToken],controller.getAllMagasin);
+  app.post("/api/v1/create-mag", controller.CreateMagasin);
+  app.post("/api/v1/add-magasinier",controller.CreateMagasinier);
+  app.get("/api/v1/get-all-magasinier",controller.getAllMagasinier);
+  app.get("/api/v1/get-all-mag",controller.getAllMagasin);
+  app.get("/api/v1/get-all-etagetype",controller.getAllEtagerOrLocalType);
+  app.get("/api/v1/get-all-casiertype",controller.getAllCasierOrEmplType);
+  app.get("/api/v1/get-all-etager",controller.getAllEtager);
+  app.get("/api/v1/get-all-casier",controller.getAllCasier);
   app.get("/api/v1/get-one-mag/:id",[authJwt.verifyToken],controller.getOneMag);
   app.post("/api/v1/update-magasinier",[authJwt.verifySudoToken], controller.UpdateMagasinier);
-  app.post("/api/v1/create-etager",[authJwt.verifySudoToken], controller.CreateEtOrLocal);
-  app.post("/api/v1/create-casier",[authJwt.verifySudoToken], controller.CreateEmplOrCasier);
-  app.get("/api/v1/get-stock",[authJwt.verifyToken],controller.getAllArticleByMag);
-  app.get("/api/v1/get-article",[authJwt.verifyToken], controller.getAllArticle);
-  app.post("/api/v1/create-article",[authJwt.verifySudoToken], controller.CreateArticle);
+  app.post("/api/v1/create-etager", controller.CreateEtOrLocal);
+  app.post("/api/v1/create-casier", controller.CreateEmplOrCasier);
+  app.get("/api/v1/get-stock-by-mag",[authJwt.verifyToken],controller.getAllArticleByMag);
+  app.get("/api/v1/get-article", controller.getAllArticle);
+  app.get("/api/v1/get-stock", controller.getAllStock);
+  app.post("/api/v1/add-article-to-casier", controller.AddArticleToCasier);
+  app.post("/api/v1/create-article", controller.CreateArticle);
   app.post("/api/v1/update-article-locate",[authJwt.verifySudoToken], controller.ChangeArticleEmpl);
-  app.post("/api/v1/create-usine",[authJwt.verifySudoToken], controller.CreateUsine);
-  app.post("/api/v1/create-new-cu",[authJwt.verifySudoToken], controller.CreateNewCU);
-  app.post("/api/v1/add-new-cu",[authJwt.verifySudoToken], controller.AddCU);
-  app.post("/api/v1/create-new-ate",[authJwt.verifySudoToken], controller.CreateNewATE);
-  app.post("/api/v1/add-new-ate",[authJwt.verifySudoToken], controller.AddATE);
-  app.post("/api/v1/create-new-cem",[authJwt.verifySudoToken], controller.CreateNewCEM);
-  app.post("/api/v1/add-new-cem",[authJwt.verifySudoToken], controller.AddCEM);
-  app.post("/api/v1/create-new-cee",[authJwt.verifySudoToken], controller.CreateNewCEE);
-  app.post("/api/v1/add-new-cee",[authJwt.verifySudoToken], controller.AddCEE);
-  app.post("/api/v1/create-new-cq",[authJwt.verifySudoToken], controller.CreateNewCQ);
-  app.post("/api/v1/add-new-cq",[authJwt.verifySudoToken], controller.AddCQ);
+  app.post("/api/v1/create-usine", controller.CreateUsine);
+  app.get("/api/v1/get-usine",[authJwt.verifyToken], controller.GetUsine);
+
+
+  app.post("/api/v1/add-new-chiefOT",controller.AddResponTravaux);
+  app.post("/api/v1/add-new-other", controller.CreateNewOther);
 };

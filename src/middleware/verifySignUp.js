@@ -1,15 +1,20 @@
 const db = require("../models");
 const User = db.user;
+const { Op } = require("sequelize");
 checkDuplicateUser = (req, res, next) => {
   // User number
   User.findOne({
     where: {
-      user_matricule: req.body.user_matricule
+      [Op.or]: [
+        { user_matricule: req.body.user_matricule },
+        { user_phone: req.body.user_phone }
+      ]
+     
     }
   }).then(user => {
     if (user) {
       res.status(400).send({
-        message: "Failed! USER NUMBER is already in use!"
+        message: "Matricule ou numero de telephone deja Utilisé"
       });
       return;
     }

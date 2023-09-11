@@ -17,6 +17,9 @@ module.exports = (sequelize, Sequelize) => {
       },
       article_cost: {
         type: Sequelize.STRING
+      },
+      article_u_messur: {
+        type: Sequelize.STRING
       }
     },
       {
